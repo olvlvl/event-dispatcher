@@ -1,0 +1,39 @@
+services:
+  listener_provider_a:
+    class: Psr\EventDispatcher\ListenerProviderInterface
+    synthetic: true
+    public: true
+    tags:
+    - { name: listener_provider, listener_tag: event_listener_for_a }
+
+  listener_provider_b:
+    class: Psr\EventDispatcher\ListenerProviderInterface
+    synthetic: true
+    public: true
+    tags:
+    - { name: listener_provider, listener_tag: event_listener_for_b }
+
+  tests\olvlvl\EventDispatcher\Symfony\SampleListenerA1:
+    tags:
+    - { name: event_listener_for_a, event: tests\olvlvl\EventDispatcher\SampleEventA }
+
+  tests\olvlvl\EventDispatcher\Symfony\SampleListenerA2:
+    tags:
+    - { name: event_listener_for_a, event: tests\olvlvl\EventDispatcher\SampleEventA }
+
+  tests\olvlvl\EventDispatcher\Symfony\SampleListenerB:
+    tags:
+    - { name: event_listener_for_b, event: tests\olvlvl\EventDispatcher\SampleEventB }
+
+  listener.c: # to check that the listener's class is resolved properly
+    class: tests\olvlvl\EventDispatcher\Symfony\SampleListenerC
+    tags:
+    - { name: event_listener_for_b, event: tests\olvlvl\EventDispatcher\SampleEventInterface }
+
+  listener.multi: # one listener for multiple events, used by multiple listener providers
+    class: tests\olvlvl\EventDispatcher\Symfony\SampleListenerM
+    tags:
+    - { name: event_listener_for_a, event: tests\olvlvl\EventDispatcher\SampleEventA }
+    - { name: event_listener_for_b, event: tests\olvlvl\EventDispatcher\SampleEventA }
+    - { name: event_listener_for_a, event: tests\olvlvl\EventDispatcher\SampleEventC }
+    - { name: event_listener_for_b, event: tests\olvlvl\EventDispatcher\SampleEventC }

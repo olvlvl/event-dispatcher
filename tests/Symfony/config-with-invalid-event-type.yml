@@ -1,0 +1,12 @@
+services:
+  Psr\EventDispatcher\ListenerProviderInterface:
+    synthetic: true
+    tags: [ listener_provider ]
+
+  tests\olvlvl\EventDispatcher\Symfony\SampleListenerA1:
+    tags:
+    - { name: event_listener, event: tests\olvlvl\EventDispatcher\SampleEventA }
+
+  tests\olvlvl\EventDispatcher\Symfony\SampleListenerA2:
+    tags:
+    - { name: event_listener, event: tests\olvlvl\EventDispatcher\UndefinedSampleEvent }

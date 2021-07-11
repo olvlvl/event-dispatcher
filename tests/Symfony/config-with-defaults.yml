@@ -1,0 +1,28 @@
+services:
+  Psr\EventDispatcher\ListenerProviderInterface:
+    synthetic: true
+    public: true
+    tags: [ listener_provider ]
+
+  tests\olvlvl\EventDispatcher\Symfony\SampleListenerA1:
+    tags:
+    - { name: event_listener, event: tests\olvlvl\EventDispatcher\SampleEventA }
+
+  tests\olvlvl\EventDispatcher\Symfony\SampleListenerA2:
+    tags:
+    - { name: event_listener, event: tests\olvlvl\EventDispatcher\SampleEventA }
+
+  tests\olvlvl\EventDispatcher\Symfony\SampleListenerB:
+    tags:
+    - { name: event_listener, event: tests\olvlvl\EventDispatcher\SampleEventB }
+
+  listener.c: # to check that the listener's class is resolved properly
+    class: tests\olvlvl\EventDispatcher\Symfony\SampleListenerC
+    tags:
+    - { name: event_listener, event: tests\olvlvl\EventDispatcher\SampleEventInterface }
+
+  listener.multi: # one listener for multiple events
+    class: tests\olvlvl\EventDispatcher\Symfony\SampleListenerM
+    tags:
+    - { name: event_listener, event: tests\olvlvl\EventDispatcher\SampleEventA }
+    - { name: event_listener, event: tests\olvlvl\EventDispatcher\SampleEventC }

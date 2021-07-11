@@ -1,0 +1,88 @@
+services:
+  Psr\EventDispatcher\ListenerProviderInterface:
+    synthetic: true
+    public: true
+    tags: [ listener_provider ]
+
+  listener_a:
+    class: tests\olvlvl\EventDispatcher\Symfony\SampleListenerA1
+    tags:
+    - name: event_listener
+      event: tests\olvlvl\EventDispatcher\SampleEventA
+      priority: 10
+
+  listener_b:
+    class: tests\olvlvl\EventDispatcher\Symfony\SampleListenerA1
+    tags:
+    - name: event_listener
+      event: tests\olvlvl\EventDispatcher\SampleEventA
+
+  listener_c:
+    class: tests\olvlvl\EventDispatcher\Symfony\SampleListenerA1
+    tags:
+    - name: event_listener
+      event: tests\olvlvl\EventDispatcher\SampleEventA
+
+  listener_d:
+    class: tests\olvlvl\EventDispatcher\Symfony\SampleListenerA1
+    tags:
+    - name: event_listener
+      event: tests\olvlvl\EventDispatcher\SampleEventA
+      priority: last
+
+  listener_e:
+    class: tests\olvlvl\EventDispatcher\Symfony\SampleListenerA1
+    tags:
+    - name: event_listener
+      event: tests\olvlvl\EventDispatcher\SampleEventA
+      priority: first
+
+  listener_f:
+    class: tests\olvlvl\EventDispatcher\Symfony\SampleListenerA1
+    tags:
+    - name: event_listener
+      event: tests\olvlvl\EventDispatcher\SampleEventA
+      priority: last
+
+  listener_g:
+    class: tests\olvlvl\EventDispatcher\Symfony\SampleListenerA1
+    tags:
+    - name: event_listener
+      event: tests\olvlvl\EventDispatcher\SampleEventA
+      priority: -10
+
+  listener_h:
+    class: tests\olvlvl\EventDispatcher\Symfony\SampleListenerA1
+    tags:
+    - name: event_listener
+      event: tests\olvlvl\EventDispatcher\SampleEventA
+      priority: -10
+
+  listener_i:
+    class: tests\olvlvl\EventDispatcher\Symfony\SampleListenerA1
+    tags:
+    - name: event_listener
+      event: tests\olvlvl\EventDispatcher\SampleEventA
+      priority: first
+
+  listener_j:
+    class: tests\olvlvl\EventDispatcher\Symfony\SampleListenerB
+    tags:
+    - name: event_listener
+      event: tests\olvlvl\EventDispatcher\SampleEventA
+    - name: event_listener
+      event: tests\olvlvl\EventDispatcher\SampleEventB
+
+  listener_k:
+    class: tests\olvlvl\EventDispatcher\Symfony\SampleListenerB
+    tags:
+    - name: event_listener
+      event: tests\olvlvl\EventDispatcher\SampleEventB
+      priority: last
+
+  listener_l:
+    class: tests\olvlvl\EventDispatcher\Symfony\SampleListenerB
+    tags:
+    - name: event_listener
+      event: tests\olvlvl\EventDispatcher\SampleEventB
+      priority: first

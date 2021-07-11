@@ -1,0 +1,20 @@
+services:
+  lp:
+    synthetic: true
+    public: true
+    tags:
+    - { name: my_listener_provider, listener_tag: listener }
+
+  tests\olvlvl\EventDispatcher\Symfony\SampleListenerA1:
+    tags:
+    - { name: listener, event: tests\olvlvl\EventDispatcher\SampleEventA }
+
+  tests\olvlvl\EventDispatcher\Symfony\SampleListenerB:
+    tags:
+    - { name: listener, event: tests\olvlvl\EventDispatcher\SampleEventB }
+
+  listener.multi: # It's a trap! We're looking for 'listener'
+    class: tests\olvlvl\EventDispatcher\Symfony\SampleListenerM
+    tags:
+    - { name: event_listener, event: tests\olvlvl\EventDispatcher\SampleEventA }
+    - { name: event_listener, event: tests\olvlvl\EventDispatcher\SampleEventC }
