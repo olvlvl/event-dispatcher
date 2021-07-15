@@ -16,6 +16,7 @@ use Psr\EventDispatcher\ListenerProviderInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
+use Symfony\Component\DependencyInjection\Exception\LogicException;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use tests\olvlvl\EventDispatcher\SampleEventA;
 use tests\olvlvl\EventDispatcher\SampleEventB;
@@ -154,6 +155,58 @@ final class ListenerProviderPassTest extends TestCase
 
     /**
      * @throws Exception
+     *
+     * @dataProvider provideInvalidPositionCombination
+     */
+    public function testInvalidPositionCombination(string $config): void
+    {
+        $container = $this->makeContainer($config);
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessageMatches('/can only specify one of/');
+        $container->compile();
+    }
+
+    /**
+     * @phpstan-ignore-next-line
+     */
+    public function provideInvalidPositionCombination(): array
+    {
+        return [
+
+            [ 'config-with-invalid-priority-and-before.yml' ],
+            [ 'config-with-invalid-priority-and-after.yml' ],
+            [ 'config-with-invalid-before-and-after.yml' ],
+
+        ];
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testPriorityStability(): void
+    {
+        $container = $this->makeContainer('config-with-same-priorities.yml');
+        $container->compile();
+
+        $this->assertSame([
+            SampleEventA::class => [
+                'listener_f', // 10
+                'listener_g',
+                'listener_h',
+                'listener_i',
+                'listener_a', // 0
+                'listener_b',
+                'listener_c',
+                'listener_d',
+                'listener_e',
+                'listener_j',
+            ]
+        ], $container->getDefinition(ListenerProviderInterface::class)->getArgument(0));
+    }
+
+    /**
+     * @throws Exception
      */
     public function testPriorities(): void
     {
@@ -177,6 +230,77 @@ final class ListenerProviderPassTest extends TestCase
                 'listener_l',
                 'listener_j',
                 'listener_k',
+            ]
+        ], $container->getDefinition(ListenerProviderInterface::class)->getArgument(0));
+    }
+
+    // TODO: SHOULD BE ONE OF
+
+    /**
+     * @throws Exception
+     */
+    public function testUndefinedRelative(): void
+    {
+        $container = $this->makeContainer('config-with-relatives-undefined.yml');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/Undefined relative for listener/');
+        $container->compile();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testUnresolvableRelatives(): void
+    {
+        $container = $this->makeContainer('config-with-relatives-unresolvable.yml');
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessageMatches(
+            '/Unable to insert the following listeners: listener_a, listener_b, listener_c./'
+        );
+        $container->compile();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testRelatives(): void
+    {
+        $container = $this->makeContainer('config-with-relatives.yml');
+        $container->compile();
+
+        $this->assertSame([
+            SampleEventA::class => [
+                'listener_i', // first 2nd
+                'listener_e', // first 1st
+                'listener_b', // 0 1st
+                'listener_c', // 0 2nd
+                'listener_h', // before j
+                'listener_g', // after h
+                'listener_j', // 0 3rd
+                'listener_d', // before f
+                'listener_a', // after d
+                'listener_f', // last
+            ],
+            SampleEventB::class => [
+                'listener_j',
+                'listener_i',
+            ]
+        ], $container->getDefinition(ListenerProviderInterface::class)->getArgument(0));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testRelativesFirstLast(): void
+    {
+        $container = $this->makeContainer('config-with-relatives-first-last.yml');
+        $container->compile();
+
+        $this->assertSame([
+            SampleEventA::class => [
+                'listener_b',
+                'listener_a',
+                'listener_c',
             ]
         ], $container->getDefinition(ListenerProviderInterface::class)->getArgument(0));
     }

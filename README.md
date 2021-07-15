@@ -14,7 +14,7 @@ for event-based extension and collaboration.
 - Supports stoppable Events.
 - Provides a collection of composable Event Dispatchers and Listener Providers.
 - Introduces Mutable Listener Providers.
-- Provides a compiler pass for [symfony/dependency-injection][].
+- Provides a compiler pass for [symfony/dependency-injection][], with priorities and relatives.
 
 #### Installation
 
@@ -301,6 +301,9 @@ automatically.
 Basically, the compiler pass searches for the tagged services, collect their Event Listeners, creates a mapping with
 their events, and overwrite a few attributes to complete the definition of the service.
 
+If Listeners are spread over multiple files, or if it's not practical to keep them ordered, priorities and relatives can
+be specified for each Event/Listener pairs, and Listeners will be sorted accordingly.
+
 
 
 ### Adding the compiler pass
@@ -425,17 +428,14 @@ services:
 
 
 
-### Specifying priorities
+### Specify priorities
 
-If Listeners are spread over multiple files, or it's not practical to keep them ordered, priorities for each
-Event/Listener pair can be defined instead.
+The compiler pass can use priorities to sort listeners. Valid priorities are integers, positive or negative, or one of
+the special values `first` and `last`. With these special values, the Listener is placed first or last, no matter the
+other priorities. Multiple Listeners can use these special values, in which case, the effect stacks. In the case of
+equal priorities, the original order is preserved.
 
-Valid priorities are integers, positive or negative, or one of the special values `first` and `last`. With these special
-values, the Event/Listener pair is placed first or last, no matter the other priorities. Multiple Event/Listeners pairs
-can use these special values, in which case, the effect stacks. In the case of equal priorities, the definition order is
-preserved.
-
-**Note:** If not specified, the priority defaults to 0.
+**Note:** If not specified, the priority defaults to 0, unless the attributes `before` or `after` are defined.
 
 The following example demonstrates how the `priority` attribute can be used to specify the order of Listeners. The final
 order will be as follows:
@@ -447,7 +447,6 @@ order will be as follows:
 services:
   Psr\EventDispatcher\ListenerProviderInterface:
     synthetic: true
-    public: true
     tags: [ listener_provider ]
 
   listener_a:
@@ -481,6 +480,59 @@ services:
     - name: event_listener
       event: SampleEventB
       priority: 10
+
+  listener_e:
+    class: SampleListener
+    tags:
+    - name: event_listener
+      event: SampleEventA
+      priority: first
+```
+
+
+
+### Specify relatives
+
+The compiler pass can sort Listeners relatively to others. The `before` attribute allows a Listener to be placed before
+another Listener, while the `after` attribute allows a Listener to be placed after another Listener.
+
+**Note:** Only one of `priority`, `before`, or `after` can be used at once.
+
+The following example demonstrates how priorities and relatives can be used to order Listeners. The final order will be
+as follows: `listener_e`, `listener_d`, `listener_c`, `listener_b`, `listener_a`.
+
+```yaml
+services:
+  Psr\EventDispatcher\ListenerProviderInterface:
+    synthetic: true
+    tags: [ listener_provider ]
+
+  listener_a:
+    class: SampleListener
+    tags:
+    - name: event_listener
+      event: SampleEventA
+
+  listener_b:
+    class: SampleListener
+    tags:
+    - name: event_listener
+      event: SampleEventA
+      before: listener_a
+
+  listener_c:
+    class: SampleListener
+    tags:
+    - name: event_listener
+      event: SampleEventA
+      after: listener_d
+
+  listener_d:
+    class: SampleListener
+    tags:
+    - name: event_listener
+      event: SampleEventA
+      after: listener_e
 
   listener_e:
     class: SampleListener
